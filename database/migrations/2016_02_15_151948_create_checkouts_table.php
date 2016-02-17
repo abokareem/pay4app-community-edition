@@ -24,6 +24,7 @@ class CreateCheckoutsTable extends Migration
             $table->string('transaction_code')->nullable();
             $table->string('redirect_url')->nullable();
             $table->string('cancel_url')->nullable();
+            $table->string('narration')->nullable();
             $table->timestamps();
         });
     }

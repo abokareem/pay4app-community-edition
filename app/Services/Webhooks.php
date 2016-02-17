@@ -31,7 +31,7 @@ class Webhooks {
 			
 		}
 		
-		//Quit resending after 4 days		
+		//Quit resending after 4 days (@todo: Make this a config option someday)
 		if ($callback->created_at->diff(Carbon::now())->days > 4 ) {
 			$callback->retry = false;
 		}

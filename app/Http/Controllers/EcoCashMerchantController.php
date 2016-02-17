@@ -19,7 +19,7 @@ class EcoCashMerchantController extends Controller
     private $gateway = 'ecocashmerchant';
 
     public function index() {
-    	return view('details');
+        return view('details');
     }
 
     public function collect(EcoCashNumberFormRequest $request) {
@@ -34,13 +34,18 @@ class EcoCashMerchantController extends Controller
     public function submit(EcoCashNumberFormRequest $request) {
     	//This one creates entries in checkouts table only
     	//Check if transfer arrived
-    	$checkout = Checkout::create([
+        if ($request->input('choice') == 'Change') {
+            return redirect()->action('EcoCashMerchantController@index');
+        }
+    	
+        $checkout = Checkout::create([
     		'order' => $request->input('order'),
 	        'amount' => $request->input('amount'),
 	        'gateway' => $this->gateway,
 	        'phone_number' => $request->input('phone_number'),
 	        'redirect_url' => $request->input('redirectURL'),
-	        'cancel_url' => $request->input('cancelURL'),
+            'cancel_url' => $request->input('cancelURL'),
+	        'narration' => $request->input('narration'),
     	]);
     	return view('done', ['redirect' => $checkout->cancel_url]);
     }
@@ -48,22 +53,23 @@ class EcoCashMerchantController extends Controller
     public function inbox(EcoCashMerchantSMSSyncFormRequest $request)
     {
 		if (!$details = $this->isEcoCashMerchantMessage($request->input('message'))) {
-            return $this->smsSyncResponse(true);
+            return $this->smsSyncResponse(true, 'Not an EcoCash merchant sms');
         }
 
-        if (!Transfer::create([
+        $transfer = Transfer::firstOrCreate([
             'gateway' => $this->gateway,
             'phone_number' => $details->phone_number,
             'transaction_code' => $details->transaction_code,
             'amount' => $details->amount,
             'sender_name' => $details->sender_name,
             'balance' => $details->balance,
-            ])) {
-
-            return $this->smsSyncResponse(false);
+        ]);
+        
+        if (!$transfer->save()) {
+            return $this->smsSyncResponse(false, 'Audit fail probably');
         }
 
-        return $this->smsSyncResponse(true);
+        return $this->smsSyncResponse(true, 'Transfer created successfully');
     }
 
     private function isEcoCashMerchantMessage($msg)

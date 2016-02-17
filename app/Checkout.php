@@ -24,6 +24,7 @@ class Checkout extends Model
         'transaction_code',
         'redirect_url',
         'cancel_url',
+        'narration',
     ];
 
     /**

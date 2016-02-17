@@ -33,13 +33,16 @@ class Transfer extends Model
         self::creating(function ($transfer) {
 
             
-            $gateway = Gateway::where('identification', $transfer->gateway)->firstOfFail();
+            $gateway = Gateway::where('identification', $transfer->gateway)->firstOrFail();
 
             //Do a balance audit, @todo: fire event on fail
             if ($gateway->audit) {
-                if ( $transfer->balance !== $gateway->balance + $transfer->amount) {
+                if ( (float)$transfer->balance !== $gateway->balance + $transfer->amount) {
                     return false;
                 }
+                //Update balance
+                $gateway->balance = $transfer->balance;
+                $gateway->save();
             }
             
             //Attach transfer to gateway
@@ -49,7 +52,9 @@ class Transfer extends Model
             $checkout = Checkout::where('paid', false)
                             ->where('open', true)
                             ->where('phone_number', $transfer->phone_number)
-                            ->where('amount', $transfer->amount)->last();
+                            ->where('amount', $transfer->amount)
+                            ->orderBy('created_at', 'desc')
+                            ->first();
                             //transaction_code for other gateways
 
             if ($checkout) {
@@ -75,7 +80,9 @@ class Transfer extends Model
                 //check for mismatches
                 $checkout = Checkout::where('paid', false)
                             ->where('open', true)
-                            ->where('phone_number', $transfer->phone_number)->last();
+                            ->where('phone_number', $transfer->phone_number)
+                            ->orderBy('created_at', 'desc')
+                            ->first();
                 //todo: Mismatch event
             }
             
@@ -90,6 +97,16 @@ class Transfer extends Model
     public function checkout()
     {
         return $this->belongsTo('App\Checkout');
+    }
+
+    /**
+     * Transfer can belong to a gateway.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function gateway()
+    {
+        return $this->belongsTo('App\Gateway');
     }
 
     /*Mutator for date('Y-m-d H:i:s', $_POST['sent_timestamp'])*/

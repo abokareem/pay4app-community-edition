@@ -21,6 +21,7 @@ class CreateTransfersTable extends Migration
             $table->float('amount');
             $table->float('balance')->nullable();
             $table->integer('checkout_id')->nullable();
+            $table->integer('gateway_id')->nullable();
             $table->timestamps();
         });
     }

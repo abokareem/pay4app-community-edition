@@ -12,5 +12,10 @@ class DatabaseSeeder extends Seeder
     public function run()
     {
         // $this->call(UserTableSeeder::class);
+        DB::table('gateways')->insert([
+        	'identification' => 'ecocashmerchant',
+            'balance' => 10.00,
+            'audit' => false,
+        ]);
     }
 }

@@ -52,9 +52,9 @@
 
                 <form action="/ecocash" method="get">
                     {!! csrf_field() !!}
-                    <input typ="hidden" name="account" value="account" />
+                    <input typ="hidden" name="account" value="lorem" />
                     <input typ="hidden" name="order" value="10" />
-                    <input typ="hidden" name="narration" value="None" />
+                    <input typ="hidden" name="narration" value="Tomatoes special offer" />
                     <input typ="hidden" name="amount" value="10.00" />
                     <input typ="hidden" name="redirectURL" value="http://buzz.com" />
                     <input typ="hidden" name="cancelURL" value="http://google.com" />
