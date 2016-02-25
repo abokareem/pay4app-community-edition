@@ -43,11 +43,7 @@ class CheckoutVariablesInSession
             abort(402, '402. Bad request');
         }
 
-        if ( $request->session()->has('order') ) {
-
-            $request->session()->keep(['account', 'order', 'narration', 'amount', 'redirectURL', 'cancelURL', 'signature']);            
-
-        } else {
+        if ($request->has('account')) {
 
             $request->session()->flash('account', $request->input('account'));
             $request->session()->flash('order', $request->input('order'));
@@ -57,6 +53,10 @@ class CheckoutVariablesInSession
             $request->session()->flash('cancelURL', $request->input('cancelURL'));
             $request->session()->flash('signature', $request->input('signature'));
 
+        } else {
+
+            $request->session()->keep(['account', 'order', 'narration', 'amount', 'redirectURL', 'cancelURL', 'signature']);
+            
         }
 
         return $next($request);

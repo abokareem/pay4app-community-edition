@@ -1,8 +1,9 @@
 ## Todo
 
 - Save checkout narration
-- Middleware to check checkout variables
+- ~~Middleware to check checkout variables~~
 - Package to listen for events & email
+- Write checkout errors to log
 - APIs for the 6 commands:
 - `pay4app:balanceaudit` --on or --off
 - `pay4app:auditbalance` set it

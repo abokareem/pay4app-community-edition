@@ -5,22 +5,31 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Validation\Validator;
+use Illuminate\Validation\Factory as ValidationFactory;
 use Symfony\Component\HttpKernel\Exception\NotAcceptableHttpException;
 
 class CheckoutAuthenticator
 {
     protected $config;
+    protected $validationFactory;
 
-    public function __construct(Config $config)
+    /**
+     * @param Illuminate\Support\Facades\Config $config
+     * @param \Illuminate\Validation\Factory $validationFactory
+     */
+    public function __construct(Config $config, ValidationFactory $validationFactory)
     {
-        $this->config = $config;
+        $this->config = app('config');//@todo
+        //@todo Move this to app bootstrap
+        $validationFactory->extend('checkout_account', function ($attribute, $value, $parameters) {
+            return ($value === $this->config->get('checkouts.account'));
+        });
     }
 
     private function validationRules()
     {
         return [
-            //'account' => 'required|checkout_account',
-            'account' => 'required',
+            'account' => 'required|checkout_account',
             'order' => 'required',
             'amount' => 'required|numeric|between:0.01,10000',
             'redirectURL' => 'required|url',
@@ -67,15 +76,14 @@ class CheckoutAuthenticator
             throw new NotAcceptableHttpException();
         }
 
-        $hashString = $account.$order.$narration.$amount.$redirectURL.$cancelURL;
-        $hash = strtoupper(hash('sha512', $hashString.Config::get('checkouts.secret')));
+        $hashString = $account.$order.$narration.$amount.$redirectURL.$cancelURL.$this->config->get('checkouts.secret');
+        $hash = strtoupper(hash('sha512', $hashString));
 
-        if ($signature === $hash) {
-            //throw new NotAcceptableHttpException();
+        if ($signature !== $hash) {
+            throw new NotAcceptableHttpException();
         }
 
         //Validate data types & signature
-
         return $next($request);
     }
 }

@@ -41,6 +41,7 @@
                 <div class="title">Laravel 5</div>
 
                 <form action="/ecocash/inbox" method="post">
+                    {!! csrf_field() !!}
                     <input typ="hidden" name="device_id" value="123" />
                     <input typ="hidden" name="from" value="+234" />
                     <input typ="hidden" name="message" value="You have received $10.00 from 772748665 -SAM TAKUNDA. Approval Code: SMACLALA. New wallet balance: $20.00" />
@@ -58,7 +59,7 @@
                     <input typ="hidden" name="amount" value="10.00" />
                     <input typ="hidden" name="redirectURL" value="http://buzz.com" />
                     <input typ="hidden" name="cancelURL" value="http://google.com" />
-                    <input typ="hidden" name="signature" value="123456" />
+                    <input typ="hidden" name="signature" value="EE9BF036F7949223A32188F069B7A93DD0F8893FBBD9502ECA9B0F3FB8F67FC8080F773EF0EB59B258AE963924FAC9B7ED244C0F1E2B78C2331310B626914AA2" />
                     <input type="submit" value="Checkout">
                 </form>
 
